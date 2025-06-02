@@ -1,7 +1,7 @@
 FRONTEND/node_modules/
 BACKEND/node_modules/
 
-BACKEND/src/.env
+BACKEND/.env
 
 
 # Logs
