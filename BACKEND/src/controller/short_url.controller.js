@@ -1,17 +1,15 @@
 import { createShortUrlWithtUser, createShortUrlWithoutUser } from "../services/short_url.service.js";
 import { getShortUrl } from "../dao/short_url.js";
 
-export const createShortUrl = async (req,res, next)=>{
-    try{
+export const createShortUrl = wrapAsync( async (req,res)=>{
+    
         const {url} = req.body
         const shortUrl = await createShortUrlWithoutUser(url)
-        res.send(process.env.APP_URL+"/" + shortUrl)
-    }catch(err){
-        next(err)
-    }
-}
+        res.status(200).json({shortUrl : process.env.APP_URL+"/" + shortUrl})
+        })
 
-export const redirectFromShortUrl = async (req,res, next)=>{
+
+export const redirectFromShortUrl = wrapAsync (async (req,res, next)=>{
     try{
         const {id}= req.params;
         const url = await getShortUrl(id)
@@ -20,4 +18,4 @@ export const redirectFromShortUrl = async (req,res, next)=>{
     }catch(err){
         next(err)
     }
-}
+})
