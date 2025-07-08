@@ -16,7 +16,7 @@ axiosInstance.interceptors.response.use(
                     console.error("Bad Request:", data);
                     break
                 case 401:
-                    console.error("Unauthorized:":data);
+                    console.error("Unauthorized:",data);
                     break
                 case 403:
                     console.error("Forbidden:", data);
