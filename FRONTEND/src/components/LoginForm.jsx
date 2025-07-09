@@ -1,42 +1,25 @@
 import { useState } from 'react';
 import { loginUser } from '../api/user.api';
 
-const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [isLoading, setIsLoading] = useState(false);
+const LoginForm = ({ state }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (error) setError('');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const handleSubmit = async () => {
+    setLoading(true);
     setError('');
 
     try {
-      const response = await loginUser(formData.password, formData.email);
-      console.log('Login successful:', response);
-
-      // Call success callback if provided
-      if (onLoginSuccess) {
-        onLoginSuccess(response);
-      }
+      await loginUser(password, email);
+      setLoading(false);
+  
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.message || 'Login failed. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -48,7 +31,7 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
           <p className="text-gray-600">Please sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
               {error}
@@ -63,8 +46,8 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
               type="email"
               id="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
               placeholder="Enter your email"
@@ -79,8 +62,8 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
               type="password"
               id="password"
               name="password"
-              value={formData.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
               placeholder="Enter your password"
@@ -108,11 +91,12 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
           </div>
 
           <button
-            type="submit"
-            disabled={isLoading}
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
           >
-            {isLoading ? (
+            {loading ? (
               <div className="flex items-center">
                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -124,21 +108,13 @@ const LoginForm = ({ onLoginSuccess, onSwitchToRegister }) => {
               'Sign In'
             )}
           </button>
-        </form>
 
-        {onSwitchToRegister && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <button
-                onClick={onSwitchToRegister}
-                className="font-medium text-blue-600 hover:text-blue-500 transition duration-200"
-              >
-                Sign up here
-              </button>
-            </p>
+          <div className="text-center mt-4">
+            <p>Don't have an account? <span onClick={()=>state(false)} className="font-medium text-blue-600 hover:text-blue-500 transition duration-200 cursor-pointer">Register</span></p>
           </div>
-        )}
+        </div>
+
+
       </div>
     </div>
   );
