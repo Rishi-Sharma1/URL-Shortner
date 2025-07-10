@@ -12,9 +12,14 @@ const LoginForm = ({ state }) => {
     setError('');
 
     try {
-      await loginUser(password, email);
-      setLoading(false);
-  
+      const response = await loginUser(password, email);
+      console.log('Login successful:', response);
+
+      // Update navbar auth state
+      if (window.handleNavbarLogin) {
+        window.handleNavbarLogin(response.user || { name: email }, response.token || 'dummy-token');
+      }
+
     } catch (err) {
       console.error('Login error:', err);
       setError(err.response?.data?.message || 'Login failed. Please try again.');
