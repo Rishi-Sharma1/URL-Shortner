@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { loginUser } from '../api/user.api';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { login } from '../store/slice/authSlice';
+import { useNavigate } from '@tanstack/react-router';
 
 const LoginForm = ({ state }) => {
   const [email, setEmail] = useState('');
@@ -9,19 +10,24 @@ const LoginForm = ({ state }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const dispatch = useDispatch();
-  const auth = useSelector((state)=> state.auth);
-  console.log(auth)
+  const navigate = useNavigate();
+
+
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
 
     try {
       const data = await loginUser(password, email);
-      console.log(data)
-      console.log('Login successful:', data);
+      console.log("Login data:", data);
 
       // Dispatch login action to Redux store
-      dispatch(login(data.user || data.data || { name: email, email }));
+      dispatch(login(data.user));
+      navigate({to:"/dashboard"});
+      // Log auth state once after login
+      setTimeout(() => {
+        console.log("Auth state:", { isAuthenticated: true, user: data.user });
+      }, 100);
 
       // Update navbar auth state
       if (window.handleNavbarLogin) {
