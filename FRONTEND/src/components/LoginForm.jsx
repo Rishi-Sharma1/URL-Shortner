@@ -1,28 +1,36 @@
 import { useState } from 'react';
 import { loginUser } from '../api/user.api';
+import { useSelector, useDispatch } from 'react-redux';
+import { login } from '../store/slice/authSlice';
 
 const LoginForm = ({ state }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const dispatch = useDispatch();
+  const auth = useSelector((state)=> state.auth);
+  console.log(auth)
   const handleSubmit = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await loginUser(password, email);
-      console.log('Login successful:', response);
+      const data = await loginUser(password, email);
+      console.log(data)
+      console.log('Login successful:', data);
+
+      // Dispatch login action to Redux store
+      dispatch(login(data.user || data.data || { name: email, email }));
 
       // Update navbar auth state
       if (window.handleNavbarLogin) {
-        window.handleNavbarLogin(response.user || { name: email }, response.token || 'dummy-token');
+        window.handleNavbarLogin(data.user || { name: email }, data.token || 'dummy-token');
       }
 
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.data?.data?.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

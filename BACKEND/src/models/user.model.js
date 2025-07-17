@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        // select: false
     },
     avatar :{
         type:String,
@@ -20,6 +21,10 @@ const userSchema = new mongoose.Schema({
         default: "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp"
     }
 })
+
+userSchema.methods.comparePassword = async function (password) {
+    return password === this.password;
+};
 
 const User = mongoose.model("User", userSchema)
 
