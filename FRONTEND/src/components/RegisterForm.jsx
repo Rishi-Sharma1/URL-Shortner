@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { registerUser } from '../api/user.api';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from '@tanstack/react-router';
+import { login } from '../store/slice/authSlice';
 
 const RegisterForm = ({ state }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   const handleSubmit = async () => {
     setIsLoading(true);
@@ -16,16 +20,14 @@ const RegisterForm = ({ state }) => {
 
     try {
       const response = await registerUser(name, password, email);
-      console.log('Registration successful:', response);
+      setIsLoading(false)
+      dispatch(login(response.user))
+      navigate({to:"/dashboard"})
     } catch (err) {
-      console.error('Registration error:', err);
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false)
+      setError(err.message || 'Registration failed. Please try again.');
     }
   };
-
-  console.log('RegisterForm is rendering');
 
   return (
     <div className="w-full max-w-md mx-auto" style={{ backgroundColor: '#f0f0f0', padding: '20px', margin: '20px auto' }}>
