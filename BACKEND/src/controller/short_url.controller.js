@@ -1,6 +1,6 @@
 import { createShortUrlWithUser, createShortUrlWithoutUser } from "../services/short_url.service.js";
 import { getShortUrl } from "../dao/short_url.js";
-import wrapAsync from "../utils/wrapAsync.js";
+import wrapAsync from "../utils/tryCatchWrapper.js";
 import shortUrl from "../models/short_url.model.js";
 
 

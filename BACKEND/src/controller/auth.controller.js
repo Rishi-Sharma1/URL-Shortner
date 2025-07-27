@@ -1,6 +1,6 @@
 import { cookieOptions } from "../config/config.js"
 import {registerUser} from "../services/auth.service.js"
-import wrapAsync from "../utils/wrapAsync.js"
+import wrapAsync from "../utils/tryCatchWrapper.js"
 import {loginUser} from "../services/auth.service.js"
 
 export const register_user = wrapAsync(async(req,res)=>{
