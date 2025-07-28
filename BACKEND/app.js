@@ -1,5 +1,4 @@
 import express from 'express';
-import {nanoid} from 'nanoid';
 import dotenv from 'dotenv';
 import connectDB from "./src/config/mongo.config.js";
 import auth_routes from './src/routes/auth.routes.js';
