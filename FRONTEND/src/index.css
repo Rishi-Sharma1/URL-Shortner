@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Outfit', sans-serif;
+  --color-bauhaus-bg: #F0F0F0;
+  --color-bauhaus-black: #121212;
+  --color-bauhaus-red: #D02020;
+  --color-bauhaus-blue: #1040C0;
+  --color-bauhaus-yellow: #F0C020;
+  --color-bauhaus-muted: #E0E0E0;
+}
+
+@layer utilities {
+  .shadow-bauhaus-sm {
+    box-shadow: 3px 3px 0px 0px #121212;
+  }
+  .shadow-bauhaus-md {
+    box-shadow: 5px 5px 0px 0px #121212;
+  }
+  .shadow-bauhaus-lg {
+    box-shadow: 8px 8px 0px 0px #121212;
+  }
+  .shadow-bauhaus-yellow {
+    box-shadow: 6px 6px 0px 0px #F0C020;
+  }
+  .shadow-bauhaus-white {
+    box-shadow: 6px 6px 0px 0px #FFFFFF;
+  }
+  
+  .btn-bauhaus {
+    transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+  }
+  .btn-bauhaus:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px 0px #121212 !important;
+  }
+  
+  .bg-dot-pattern {
+    background-image: radial-gradient(#121212 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+
+  .bg-dot-pattern-light {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.4) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+  }
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: #F0F0F0;
+  color: #121212;
+  overflow-x: hidden;
+}

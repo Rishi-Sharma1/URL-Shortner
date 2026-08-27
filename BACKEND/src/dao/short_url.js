@@ -2,29 +2,37 @@ import urlSchema from "../models/short_url.model.js";
 import { ConflictError } from "../utils/errorHandler.js";
 
 export const saveShortUrl = async (shortUrl, longUrl, userId) => {
-    try{
+    try {
         const newUrl = new urlSchema({
-            full_url:longUrl,
-            short_url:shortUrl
-        })
-        console.log({userId});
-        
-        if(userId){
-            newUrl.user = userId
+            full_url: longUrl,
+            short_url: shortUrl
+        });
+
+        if (userId) {
+            newUrl.user = userId;
+            newUrl.expiresAt = null; // Permanent for logged-in users
+        } else {
+            // Free guest URL: Auto delete from DB after 30 minutes
+            newUrl.expiresAt = new Date(Date.now() + 30 * 60 * 1000);
         }
-        await newUrl.save()
-    }catch(err){
-        if(err.code == 11000){
-            throw new ConflictError("Short URL already exists")
+
+        await newUrl.save();
+    } catch (err) {
+        if (err.code === 11000) {
+            throw new ConflictError("Short URL already exists");
         }
-        throw new Error(err)
+        throw new Error(err);
     }
 };
 
 export const getShortUrl = async (shortUrl) => {
-    return await urlSchema.findOneAndUpdate({short_url:shortUrl},{$inc:{clicks:1}});
-}
+    return await urlSchema.findOneAndUpdate({ short_url: shortUrl }, { $inc: { clicks: 1 } });
+};
 
 export const getCustomShortUrl = async (slug) => {
-    return await urlSchema.findOne({short_url:slug});
-}
+    return await urlSchema.findOne({ short_url: slug });
+};
+
+export const deleteUserUrlDao = async (id, userId) => {
+    return await urlSchema.findOneAndDelete({ _id: id, user: userId });
+};

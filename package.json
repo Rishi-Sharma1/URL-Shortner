@@ -1,0 +1,18 @@
+{
+  "name": "url-shortener-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "URL Shortener full-stack application",
+  "main": "BACKEND/app.js",
+  "type": "module",
+  "scripts": {
+    "setup": "npm install --prefix BACKEND && npm install --prefix FRONTEND",
+    "postinstall": "npm run setup",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev --prefix BACKEND\" \"npm run dev --prefix FRONTEND\"",
+    "build": "npm run build --prefix FRONTEND",
+    "start": "npm run build && npm start --prefix BACKEND"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

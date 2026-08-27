@@ -1,137 +1,167 @@
-import React, { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { getAllUserUrls } from '../api/user.api'
-import { useSelector } from 'react-redux'
+import React, { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getAllUserUrls, deleteUserUrl } from '../api/user.api';
+import { useSelector } from 'react-redux';
+import { Copy, Check, ExternalLink, Link2, BarChart2, Trash2 } from 'lucide-react';
 
 const UserUrl = () => {
-  const { user } = useSelector((state) => state.auth)
+    const { user } = useSelector((state) => state.auth);
+    const queryClient = useQueryClient();
 
-  const { data: urls, isLoading, isError, error } = useQuery({
-    queryKey: ['userUrls', user?._id],
-    queryFn: () => getAllUserUrls(user._id),
-    refetchInterval: 30000, // Refetch every 30 seconds to update click counts
-    staleTime: 0, // Consider data stale immediately so it refetches when invalidated
-  })
-  const [copiedId, setCopiedId] = useState(null)
-  const handleCopy = (url, id) => {
-    navigator.clipboard.writeText(url)
-    setCopiedId(id)
-    
-    // Reset the copied state after 2 seconds
-    setTimeout(() => {
-      setCopiedId(null)
-    }, 2000)
-  }
+    const { data: urlsData, isLoading, isError, error } = useQuery({
+        queryKey: ['userUrls', user?._id],
+        queryFn: () => getAllUserUrls(user?._id),
+        refetchInterval: 15000,
+        staleTime: 0,
+        enabled: !!user?._id,
+    });
 
-  if (isLoading) {
+    const [copiedId, setCopiedId] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
+
+    const handleCopy = (shortCode, id) => {
+        const fullShortUrl = `${window.location.origin}/${shortCode}`;
+        navigator.clipboard.writeText(fullShortUrl);
+        setCopiedId(id);
+        setTimeout(() => {
+            setCopiedId(null);
+        }, 2000);
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this shortened URL?")) return;
+        setDeletingId(id);
+        try {
+            await deleteUserUrl(id);
+            queryClient.invalidateQueries({ queryKey: ['userUrls'] });
+        } catch (err) {
+            alert(err.message || "Failed to delete URL");
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center my-8 p-8 bg-white border-4 border-[#121212] shadow-[6px_6px_0px_0px_#121212]">
+                <div className="flex items-center space-x-3 text-sm font-black uppercase tracking-wider">
+                    <div className="w-5 h-5 border-3 border-[#121212] border-t-[#D02020] rounded-full animate-spin" />
+                    <span>LOADING YOUR URLS...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="bg-[#FFEBEE] border-4 border-[#121212] shadow-[6px_6px_0px_0px_#121212] p-4 text-[#D02020] text-xs font-bold uppercase tracking-wider my-4">
+                ERROR LOADING URLS: {error?.message}
+            </div>
+        );
+    }
+
+    const urlList = urlsData?.urls ? [...urlsData.urls].reverse() : [];
+
+    if (urlList.length === 0) {
+        return (
+            <div className="text-center p-8 bg-white border-4 border-[#121212] shadow-[8px_8px_0px_0px_#121212] my-6">
+                <div className="w-12 h-12 bg-[#F0C020] border-2 border-[#121212] shadow-[3px_3px_0px_0px_#121212] mx-auto flex items-center justify-center mb-3">
+                    <Link2 className="w-6 h-6 text-[#121212]" />
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight text-[#121212]">NO SHORTENED URLS YET</h3>
+                <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mt-1">Use the form above to shorten your first permanent link!</p>
+            </div>
+        );
+    }
+
     return (
-      <div className="flex justify-center my-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    )
-  }
+        <div className="bg-white border-4 border-[#121212] shadow-[8px_8px_0px_0px_#121212] mt-8 overflow-hidden">
+            <div className="bg-[#F0C020] border-b-4 border-[#121212] px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                    <BarChart2 className="w-5 h-5 text-[#121212]" />
+                    <h2 className="text-lg font-black uppercase tracking-tight text-[#121212]">YOUR PERMANENT LINKS</h2>
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest bg-[#121212] text-white px-3 py-1">
+                    TOTAL: {urlList.length}
+                </span>
+            </div>
 
-  if (isError) {
-    return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded my-4">
-        Error loading your URLs: {error.message}
-      </div>
-    )
-  }
+            <div className="overflow-x-auto max-h-96">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-[#F0F0F0] border-b-2 border-[#121212] text-xs font-black uppercase tracking-widest text-[#121212]">
+                            <th className="px-6 py-3 border-r-2 border-[#121212]">ORIGINAL URL</th>
+                            <th className="px-6 py-3 border-r-2 border-[#121212]">SHORT LINK</th>
+                            <th className="px-6 py-3 border-r-2 border-[#121212]">CLICKS</th>
+                            <th className="px-6 py-3 text-right">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y-2 divide-[#121212]">
+                        {urlList.map((url) => {
+                            const fullShortUrl = `${window.location.origin}/${url.short_url}`;
+                            return (
+                                <tr key={url._id} className="hover:bg-[#FFF9C4] transition duration-150">
+                                    <td className="px-6 py-4 border-r-2 border-[#121212]">
+                                        <div className="text-xs font-medium text-gray-700 truncate max-w-xs sm:max-w-sm">
+                                            {url.full_url}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 border-r-2 border-[#121212]">
+                                        <a
+                                            href={`/${url.short_url}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center space-x-1.5 font-mono text-xs font-bold text-[#1040C0] hover:underline"
+                                        >
+                                            <span>{url.short_url}</span>
+                                            <ExternalLink className="w-3 h-3" />
+                                        </a>
+                                    </td>
+                                    <td className="px-6 py-4 border-r-2 border-[#121212]">
+                                        <span className="inline-block bg-[#1040C0] text-white text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 border border-[#121212]">
+                                            {url.clicks || 0} CLICKS
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="inline-flex items-center space-x-2">
+                                            <button
+                                                onClick={() => handleCopy(url.short_url, url._id)}
+                                                className={`btn-bauhaus px-3 py-1.5 border-2 border-[#121212] font-black text-xs uppercase tracking-wider inline-flex items-center space-x-1 ${
+                                                    copiedId === url._id
+                                                        ? 'bg-[#4CAF50] text-white'
+                                                        : 'bg-[#F0C020] text-[#121212] hover:bg-[#e0b010]'
+                                                }`}
+                                            >
+                                                {copiedId === url._id ? (
+                                                    <>
+                                                        <Check className="w-3.5 h-3.5" />
+                                                        <span>COPIED</span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Copy className="w-3.5 h-3.5" />
+                                                        <span>COPY</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(url._id)}
+                                                disabled={deletingId === url._id}
+                                                title="Delete URL"
+                                                className="btn-bauhaus p-1.5 bg-[#D02020] text-white border-2 border-[#121212] hover:bg-[#b01818] transition disabled:opacity-50"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
 
-  if (!urls.urls || urls.urls.length === 0) {
-    return (
-      <div className="text-center text-gray-500 my-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-        </svg>
-        <p className="text-lg font-medium">No URLs found</p>
-        <p className="mt-1">You haven't created any shortened URLs yet.</p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="bg-white rounded-lg mt-5 shadow-md overflow-hidden">
-      
-      <div className="overflow-x-auto h-56">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Original URL
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Short URL
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Clicks
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {urls.urls.reverse().map((url) => (
-              <tr key={url._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 truncate max-w-xs">
-                    {url.full_url}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm">
-                    <a 
-                      href={`http://localhost:3000/${url.short_url}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-900 hover:underline"
-                    >
-                      {`localhost:3000/${url.short_url}`}
-                    </a>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {url.clicks} {url.clicks === 1 ? 'click' : 'clicks'}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm font-medium">
-                  <button
-                    onClick={() => handleCopy(`http://localhost:3000/${url.short_url}`, url._id)}
-                    className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm ${
-                      copiedId === url._id
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200`}
-                  >
-                    {copiedId === url._id ? (
-                      <>
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
-                        </svg>
-                        Copy URL
-                      </>
-                    )}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-export default UserUrl
+export default UserUrl;

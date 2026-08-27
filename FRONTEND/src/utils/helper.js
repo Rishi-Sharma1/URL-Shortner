@@ -2,20 +2,57 @@ import { redirect } from "@tanstack/react-router";
 import { getCurrentUser } from "../api/user.api";
 import { login } from "../store/slice/authSlice";
 
+// Route guard for protected routes like /dashboard
 export const checkAuth = async ({ context }) => {
     try {
         const { queryClient, store } = context;
-        const user = await queryClient.ensureQueryData({
+
+        // 1. Check current Redux store
+        let { isAuthenticated, user } = store.getState().auth;
+        if (isAuthenticated && user) {
+            return true;
+        }
+
+        // 2. Fallback check to server API /api/auth/me
+        const response = await queryClient.fetchQuery({
             queryKey: ["currentUser"],
             queryFn: getCurrentUser,
+            staleTime: 0,
         });
-        if(!user) return false;
-        store.dispatch(login(user));
-        const {isAuthenticated} = store.getState().auth;
-        if(!isAuthenticated) return false;
-        return true
+
+        if (response && response.user) {
+            store.dispatch(login(response.user));
+            return true;
+        }
+
+        throw new Error("Unauthenticated");
     } catch (error) {
-        console.log(error)
-        return redirect({to: "/auth",})
+        if (error?.to) throw error; // Rethrow router redirects
+        throw redirect({ to: "/auth" });
+    }
+};
+
+// Route guard for auth pages: if already logged in, redirect to /dashboard
+export const redirectIfAuth = async ({ context }) => {
+    try {
+        const { queryClient, store } = context;
+
+        let { isAuthenticated, user } = store.getState().auth;
+        if (isAuthenticated && user) {
+            throw redirect({ to: "/dashboard" });
+        }
+
+        const response = await queryClient.fetchQuery({
+            queryKey: ["currentUser"],
+            queryFn: getCurrentUser,
+            staleTime: 0,
+        });
+
+        if (response && response.user) {
+            store.dispatch(login(response.user));
+            throw redirect({ to: "/dashboard" });
+        }
+    } catch (error) {
+        if (error?.to) throw error; // Rethrow router redirects
     }
 };
