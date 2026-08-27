@@ -9,8 +9,8 @@
     "setup": "npm install --prefix BACKEND --include=dev && npm install --prefix FRONTEND --include=dev",
     "postinstall": "npm run setup",
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue,green\" \"npm run dev --prefix BACKEND\" \"npm run dev --prefix FRONTEND\"",
-    "build": "npm run build --prefix FRONTEND",
-    "start": "npm run build && npm start --prefix BACKEND"
+    "build": "npm run setup && npm run build --prefix FRONTEND",
+    "start": "npm start --prefix BACKEND"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
