@@ -1,49 +1,48 @@
-export const errorHandler = (err,req,res,next)=>{
-    if(err instanceof AppError){
+export const errorHandler = (err, req, res, next) => {
+    if (err instanceof AppError) {
         return res.status(err.statusCode).json({
-            success:false,
-            message:err.message
+            success: false,
+            message: err.message
         });
     }
-    
-    console.log(err);
+
     res.status(500).json({
-        success:false,
-        message:err.message || "Internal Server Error"
-    });    
+        success: false,
+        message: err.message || "Internal Server Error"
+    });
 };
 
-export class AppError extends Error{
+export class AppError extends Error {
     statusCode;
     isOpertional;
-    constructor(message, statusCode=500, isOpertional=true){
+    constructor(message, statusCode = 500, isOpertional = true) {
         super(message)
-        this.isOpertional=isOpertional;
-        this.statusCode=statusCode;
+        this.isOpertional = isOpertional;
+        this.statusCode = statusCode;
         Error.captureStackTrace(this, this.constructor)
     }
 }
 
-export class NotFoundError extends AppError{
-    constructor(message="Resource not found"){
+export class NotFoundError extends AppError {
+    constructor(message = "Resource not found") {
         super(message, 404)
     }
 }
 
-export class ConflictError extends AppError{
-    constructor(message="Conflict occurred"){
+export class ConflictError extends AppError {
+    constructor(message = "Conflict occurred") {
         super(message, 409)
     }
 }
 
-export class BadRequestError extends AppError{
-    constructor(message="Bad Request"){
+export class BadRequestError extends AppError {
+    constructor(message = "Bad Request") {
         super(message, 400)
     }
 }
 
-export class UnauthorizedError extends AppError{
-    constructor(message="Unauthorized"){
+export class UnauthorizedError extends AppError {
+    constructor(message = "Unauthorized") {
         super(message, 401)
     }
 }

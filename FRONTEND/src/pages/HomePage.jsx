@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import UrlForm from '../components/UrlForm';
 import GeometricLogo from '../components/GeometricLogo';
 import { Link } from '@tanstack/react-router';
+import { QRCodeCanvas } from 'qrcode.react';
 import {
     Zap,
     Shield,
@@ -12,17 +13,29 @@ import {
     CheckCircle2,
     Globe,
     Layers,
-    Scissors
+    Scissors,
+    QrCode,
+    Link2,
+    Check,
+    ArrowUpRight,
+    TrendingUp,
+    ArrowUp,
+    ArrowDown
 } from 'lucide-react';
 
 const HomePage = () => {
-    // Accordion State
+    // Accordion & Tab States
     const [openFaq, setOpenFaq] = useState(0);
+    const [activeTab, setActiveTab] = useState('qr');
 
     const faqs = [
         {
-            q: "HOW DOES THE BAUHAUS URL SHORTENER WORK?",
+            q: "HOW DOES THE SHORT.LY URL SHORTENER WORK?",
             a: "Paste any long URL into our generator. We map your original link to a compact, high-speed 7-character nanoid code that instantly redirects users anywhere in the world under 50ms."
+        },
+        {
+            q: "CAN I GENERATE AND DOWNLOAD QR CODES FOR MY LINKS?",
+            a: "Yes! Every shortened link includes instant QR Code generation. Customize colors, preview, and download high-resolution PNG image files directly to your phone or computer."
         },
         {
             q: "CAN I CREATE CUSTOM BRANDED SHORT LINKS?",
@@ -30,11 +43,11 @@ const HomePage = () => {
         },
         {
             q: "IS SHORT.LY 100% FREE TO USE?",
-            a: "Absolutely. Our core URL shortening service, click statistics, and custom alias features are completely free with no hidden paywalls."
+            a: "Absolutely. Our core URL shortening service, QR code generator, click statistics, and custom alias features are completely free with no hidden paywalls."
         },
         {
-            q: "DO SHORTENED LINKS EVER EXPIRE?",
-            a: "No! Links created on Short.ly remain permanent and active indefinitely unless deleted by the owner."
+            q: "DO SHORTENED LINKS AND QR CODES EVER EXPIRE?",
+            a: "Links created by signed-in users remain permanent indefinitely (`expiresAt: null`). Free guest links expire after 30 minutes."
         }
     ];
 
@@ -56,7 +69,7 @@ const HomePage = () => {
                             <div className="inline-flex items-center space-x-2 bg-[#F0C020] px-4 py-1.5 border-3 border-[#121212] shadow-[4px_4px_0px_0px_#121212]">
                                 <Sparkles className="w-4 h-4 text-[#121212] fill-[#121212]" />
                                 <span className="text-xs font-black uppercase tracking-widest text-[#121212]">
-                                    CONSTRUCTIVIST URL ENGINE
+                                    URL SHORTENING ENGINE
                                 </span>
                             </div>
 
@@ -152,6 +165,285 @@ const HomePage = () => {
                     <div className="p-8 text-center sm:text-left space-y-1">
                         <div className="text-4xl sm:text-5xl font-black tracking-tighter text-[#121212]">100%</div>
                         <div className="text-xs font-black uppercase tracking-widest text-[#121212]">FREE FOREVER</div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            {/* PROMOTION SHOWCASE CARDS SECTION (BITLY SLIDING DRAWER HOVER CARDS) */}
+            <section className="py-20 sm:py-28 border-b-4 border-[#121212] bg-[#F0F0F0] relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                    {/* Section Title */}
+                    <div className="mb-14 text-center space-y-3">
+                        <div className="inline-block bg-[#1040C0] text-white text-xs font-black uppercase tracking-widest px-3 py-1 border-2 border-[#121212] shadow-[3px_3px_0px_0px_#121212]">
+                            ALL-IN-ONE PLATFORM
+                        </div>
+                        <h2 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter text-[#121212]">
+                            WHAT YOU CAN BUILD WITH SHORT.LY
+                        </h2>
+
+                    </div>
+
+                    {/* 3 Sliding Drawer Cards Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+
+                        {/* CARD 1: URL SHORTENER */}
+                        <div className="group relative h-[540px] bg-white border-4 border-[#121212] shadow-[8px_8px_0px_0px_#121212] hover:shadow-[12px_12px_0px_0px_#D02020] transition-all duration-300 overflow-hidden">
+                            {/* Background Visual Mock Area */}
+                            <div className="absolute inset-0 pb-36 p-6 bg-[#F4F4F0] flex flex-col justify-center space-y-4 overflow-hidden">
+                                <div className="absolute inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
+
+                                {/* Floating UTM pill */}
+                                <div className="self-start bg-white border-2 border-[#121212] shadow-[2px_2px_0px_0px_#121212] px-3 py-1 text-[11px] font-mono font-bold text-gray-600 flex items-center space-x-1 animate-float">
+                                    <span className="text-[#D02020] font-black">+</span>
+                                    <span>?utm_medium=social</span>
+                                </div>
+
+                                {/* Shortened URL Preview Bar */}
+                                <div className="bg-white border-3 border-[#121212] shadow-[4px_4px_0px_0px_#121212] p-3 flex items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-6 h-6 rounded-full bg-[#D02020] flex items-center justify-center text-white font-black text-xs border border-[#121212]">
+                                            S
+                                        </div>
+                                        <span className="font-mono text-sm font-black text-[#121212]">
+                                            short.ly/my-brand
+                                        </span>
+                                    </div>
+                                    <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#121212] p-1 animate-pulse">
+                                        <TrendingUp className="w-4 h-4" />
+                                    </div>
+                                </div>
+
+                                {/* Dynamic Routing Box */}
+                                <div className="bg-white border-2 border-[#121212] p-3 space-y-1 text-[11px] font-mono text-gray-700 shadow-[2px_2px_0px_0px_#121212]">
+                                    <div className="font-bold text-[#1040C0] uppercase tracking-wider text-[10px]">
+                                        Dynamic Redirect Routing
+                                    </div>
+                                    <div>if <span className="font-bold text-[#121212]">Region == Global</span> and <span className="font-bold text-[#121212]">Device == Mobile</span></div>
+                                    <div>Then go to <span className="underline font-bold text-[#D02020]">https://my-brand.com/app</span></div>
+                                </div>
+                            </div>
+
+                            {/* Sliding Bottom Drawer */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-white border-t-4 border-[#121212] p-6 space-y-4 transition-transform duration-300 ease-in-out transform translate-y-[calc(100%-120px)] group-hover:translate-y-0 shadow-[0px_-6px_0px_0px_rgba(0,0,0,0.05)]">
+                                {/* Header */}
+                                <div className="flex items-center justify-between cursor-pointer">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-9 h-9 bg-[#D02020] text-white border-2 border-[#121212] flex items-center justify-center shadow-[2px_2px_0px_0px_#121212]">
+                                            <Link2 className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-2xl font-black uppercase tracking-tight text-[#121212]">
+                                            URL SHORTENER
+                                        </h3>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-[#121212] bg-[#F0F0F0] flex items-center justify-center">
+                                        <ArrowUp className="w-5 h-5 text-[#121212] group-hover:hidden" />
+                                        <ArrowDown className="w-5 h-5 text-[#121212] hidden group-hover:block" />
+                                    </div>
+                                </div>
+
+                                <p className="text-xs font-bold text-[#121212] leading-relaxed">
+                                    Create polished, branded short links for every campaign you run with sub-50ms redirection speeds.
+                                </p>
+
+                                {/* Features checklist (shown on hover) */}
+                                <div className="space-y-2 pt-2 border-t-2 border-dashed border-[#121212]">
+                                    {[
+                                        'AI-powered link creation',
+                                        'Custom domains and back-halves',
+                                        'URL redirects & custom aliases',
+                                        'Bulk link shortening'
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="flex items-center space-x-2 text-xs font-bold text-[#121212]">
+                                            <div className="w-4 h-4 rounded-full bg-[#D02020] text-white flex items-center justify-center shrink-0 border border-[#121212]">
+                                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                            </div>
+                                            <span>{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="space-y-2 pt-2">
+                                    <Link
+                                        to="/auth"
+                                        className="btn-bauhaus w-full bg-[#1040C0] text-white text-center font-black text-xs uppercase tracking-widest py-3 border-2 border-[#121212] shadow-[3px_3px_0px_0px_#121212] block hover:bg-[#0c3298]"
+                                    >
+                                        GET STARTED FOR FREE
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CARD 2: QR CODES */}
+                        <div className="group relative h-[540px] bg-white border-4 border-[#121212] shadow-[8px_8px_0px_0px_#121212] hover:shadow-[12px_12px_0px_0px_#F0C020] transition-all duration-300 overflow-hidden">
+                            {/* Background Visual Mock Area */}
+                            <div className="absolute inset-0 pb-36 p-6 bg-[#FFFDE7] flex flex-col items-center justify-center space-y-4 overflow-hidden">
+                                <div className="bg-[#F0F0F0] border-2 border-[#121212] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[#121212] flex items-center space-x-1">
+                                    <QrCode className="w-3.5 h-3.5" />
+                                    <span>QR CODE DESTINATION → REDIRECT</span>
+                                </div>
+
+                                {/* Animated Live QR Code Canvas Box */}
+                                <div className="p-3 bg-white border-3 border-[#121212] shadow-[4px_4px_0px_0px_#121212] flex flex-col items-center animate-pulse-glow">
+                                    <QRCodeCanvas value="https://short.ly" size={130} fgColor="#121212" level="H" />
+                                </div>
+
+                                <div className="bg-white border-2 border-[#121212] px-4 py-1.5 text-xs font-mono font-bold text-[#121212] shadow-[2px_2px_0px_0px_#121212]">
+                                    Total scans: <span className="font-black text-[#1040C0]">1,200</span>
+                                </div>
+                            </div>
+
+                            {/* Sliding Bottom Drawer */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-white border-t-4 border-[#121212] p-6 space-y-4 transition-transform duration-300 ease-in-out transform translate-y-[calc(100%-120px)] group-hover:translate-y-0 shadow-[0px_-6px_0px_0px_rgba(0,0,0,0.05)]">
+                                {/* Header */}
+                                <div className="flex items-center justify-between cursor-pointer">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-9 h-9 bg-[#F0C020] text-[#121212] border-2 border-[#121212] flex items-center justify-center shadow-[2px_2px_0px_0px_#121212]">
+                                            <QrCode className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-2xl font-black uppercase tracking-tight text-[#121212]">
+                                            QR CODES
+                                        </h3>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-[#121212] bg-[#F0F0F0] flex items-center justify-center">
+                                        <ArrowUp className="w-5 h-5 text-[#121212] group-hover:hidden" />
+                                        <ArrowDown className="w-5 h-5 text-[#121212] hidden group-hover:block" />
+                                    </div>
+                                </div>
+
+                                <p className="text-xs font-bold text-[#121212] leading-relaxed">
+                                    Generate dynamic, custom QR Codes you can download as PNG/SVG and update anytime.
+                                </p>
+
+                                {/* Features checklist (shown on hover) */}
+                                <div className="space-y-2 pt-2 border-t-2 border-dashed border-[#121212]">
+                                    {[
+                                        'Customizable colors, patterns, and logos',
+                                        'Dynamic 302 QR Redirection',
+                                        'PNG/JPEG/SVG downloads',
+                                        'Bulk QR Code creation'
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="flex items-center space-x-2 text-xs font-bold text-[#121212]">
+                                            <div className="w-4 h-4 rounded-full bg-[#F0C020] text-[#121212] flex items-center justify-center shrink-0 border border-[#121212]">
+                                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                            </div>
+                                            <span>{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="space-y-2 pt-2">
+                                    <Link
+                                        to="/auth"
+                                        className="btn-bauhaus w-full bg-[#1040C0] text-white text-center font-black text-xs uppercase tracking-widest py-3 border-2 border-[#121212] shadow-[3px_3px_0px_0px_#121212] block hover:bg-[#0c3298]"
+                                    >
+                                        GET STARTED FOR FREE
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CARD 3: ANALYTICS */}
+                        <div className="group relative h-[540px] bg-white border-4 border-[#121212] shadow-[8px_8px_0px_0px_#121212] hover:shadow-[12px_12px_0px_0px_#1040C0] transition-all duration-300 overflow-hidden">
+                            {/* Background Visual Mock Area */}
+                            <div className="absolute inset-0 pb-36 p-6 bg-[#F4F4F0] flex flex-col justify-center space-y-4 overflow-hidden">
+                                <div className="absolute inset-0 bg-dot-pattern opacity-10 pointer-events-none" />
+
+                                {/* Engagement Header Card */}
+                                <div className="bg-white border-3 border-[#121212] shadow-[4px_4px_0px_0px_#121212] p-3 flex items-center justify-between">
+                                    <div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 block">
+                                            TOTAL ENGAGEMENTS
+                                        </span>
+                                        <span className="text-2xl font-black text-[#121212] tracking-tighter">
+                                            1,422 <span className="text-xs font-bold text-[#2E7D32]">+20%</span>
+                                        </span>
+                                    </div>
+                                    <BarChart3 className="w-6 h-6 text-[#1040C0] animate-bounce" />
+                                </div>
+
+                                {/* Quick Prompts Box */}
+                                <div className="bg-white border-2 border-[#121212] p-2.5 space-y-1.5 shadow-[2px_2px_0px_0px_#121212]">
+                                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-600 mb-1">
+                                        ANALYTICS INSIGHTS
+                                    </div>
+                                    <div className="bg-[#F0F0F0] border border-[#121212] px-2 py-1 text-[11px] font-bold text-[#121212] flex items-center justify-between">
+                                        <span>Summarize last 7 days</span>
+                                        <span className="font-mono text-[#1040C0]">879 clicks</span>
+                                    </div>
+                                    <div className="bg-[#F0F0F0] border border-[#121212] px-2 py-1 text-[11px] font-bold text-[#121212] flex items-center justify-between">
+                                        <span>Top performing link</span>
+                                        <span className="font-mono text-[#D02020]">/my-brand</span>
+                                    </div>
+                                </div>
+
+                                {/* Mini Sparkline Graph Bar */}
+                                <div className="bg-[#121212] text-[#F0C020] border-2 border-[#121212] p-3 flex items-end justify-between space-x-1.5 h-16 shadow-[2px_2px_0px_0px_#121212]">
+                                    {[35, 55, 40, 75, 60, 90, 100].map((val, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="flex-1 bg-[#F0C020] border border-[#121212] transition-all hover:bg-[#D02020] animate-bar-grow"
+                                            style={{ height: `${val}%`, animationDelay: `${idx * 100}ms` }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Sliding Bottom Drawer */}
+                            <div className="absolute bottom-0 left-0 right-0 bg-white border-t-4 border-[#121212] p-6 space-y-4 transition-transform duration-300 ease-in-out transform translate-y-[calc(100%-120px)] group-hover:translate-y-0 shadow-[0px_-6px_0px_0px_rgba(0,0,0,0.05)]">
+                                {/* Header */}
+                                <div className="flex items-center justify-between cursor-pointer">
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-9 h-9 bg-[#1040C0] text-white border-2 border-[#121212] flex items-center justify-center shadow-[2px_2px_0px_0px_#121212]">
+                                            <BarChart3 className="w-5 h-5" />
+                                        </div>
+                                        <h3 className="text-2xl font-black uppercase tracking-tight text-[#121212]">
+                                            ANALYTICS
+                                        </h3>
+                                    </div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-[#121212] bg-[#F0F0F0] flex items-center justify-center">
+                                        <ArrowUp className="w-5 h-5 text-[#121212] group-hover:hidden" />
+                                        <ArrowDown className="w-5 h-5 text-[#121212] hidden group-hover:block" />
+                                    </div>
+                                </div>
+
+                                <p className="text-xs font-bold text-[#121212] leading-relaxed">
+                                    See what's working across your links and QR Codes, simply and clearly.
+                                </p>
+
+                                {/* Features checklist (shown on hover) */}
+                                <div className="space-y-2 pt-2 border-t-2 border-dashed border-[#121212]">
+                                    {[
+                                        'Geography, referrer, and device tracking',
+                                        'Cross-channel analytics dashboards',
+                                        'Real-time click statistics & counts',
+                                        'Campaign performance and UTMs'
+                                    ].map((item, idx) => (
+                                        <div key={idx} className="flex items-center space-x-2 text-xs font-bold text-[#121212]">
+                                            <div className="w-4 h-4 rounded-full bg-[#1040C0] text-white flex items-center justify-center shrink-0 border border-[#121212]">
+                                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                                            </div>
+                                            <span>{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="space-y-2 pt-2">
+                                    <Link
+                                        to="/auth"
+                                        className="btn-bauhaus w-full bg-[#1040C0] text-white text-center font-black text-xs uppercase tracking-widest py-3 border-2 border-[#121212] shadow-[3px_3px_0px_0px_#121212] block hover:bg-[#0c3298]"
+                                    >
+                                        GET STARTED FOR FREE
+                                    </Link>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -295,16 +587,6 @@ const HomePage = () => {
                             </p>
                         </div>
 
-                        {/* Feature 6 */}
-                        <div className="bg-white text-[#121212] border-4 border-[#121212] shadow-[8px_8px_0px_0px_#121212] p-8 space-y-4 relative">
-                            <div className="w-12 h-12 bg-[#121212] text-white border-2 border-[#121212] shadow-[3px_3px_0px_0px_#121212] flex items-center justify-center">
-                                <Layers className="w-6 h-6" />
-                            </div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">BAUHAUS DESIGN</h3>
-                            <p className="text-sm font-medium text-gray-700 leading-relaxed">
-                                Bold constructivist aesthetics with crisp 4px borders, primary colors, and zero generic fluff.
-                            </p>
-                        </div>
 
                     </div>
 
@@ -406,7 +688,7 @@ const HomePage = () => {
                     </div>
 
                     <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-gray-500">
-                        <p>© {new Date().getFullYear()} SHORT.LY — BAUHAUS CONSTRUCTIVIST EDITION.</p>
+                        <p>© {new Date().getFullYear()} SHORT.LY — ALL RIGHTS RESERVED.</p>
                         <p className="flex items-center space-x-1">
                             <span>BUILT WITH FORM & FUNCTION</span>
                         </p>

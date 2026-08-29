@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createShortUrl } from '../api/shortUrl.api';
 import { useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Copy, Check, ArrowRight, Sparkles, Clock, AlertTriangle } from 'lucide-react';
+import { Copy, Check, ArrowRight, Sparkles, Clock, AlertTriangle, QrCode } from 'lucide-react';
+import QrModal from './QrModal';
 
 const UrlForm = () => {
     const queryClient = useQueryClient();
@@ -13,7 +14,22 @@ const UrlForm = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [customSlug, setCustomSlug] = useState('');
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const { isAuthenticated } = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        const handleUrlDeleted = () => {
+            setUrl('');
+            setCustomSlug('');
+            setShortUrl('');
+            setCopied(false);
+            setError(null);
+            setIsQrModalOpen(false);
+        };
+
+        window.addEventListener('urlDeleted', handleUrlDeleted);
+        return () => window.removeEventListener('urlDeleted', handleUrlDeleted);
+    }, []);
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -144,32 +160,49 @@ const UrlForm = () => {
                         )}
                     </div>
 
-                    <div className="flex items-stretch space-x-2">
+                    <div className="flex flex-col sm:flex-row items-stretch gap-2">
                         <input
                             type="text"
                             readOnly
                             value={shortUrl}
                             className="flex-1 px-3 py-2 bg-white text-[#121212] font-mono text-sm font-bold border-2 border-[#121212] truncate focus:outline-none"
                         />
-                        <button
-                            onClick={handleCopy}
-                            className="btn-bauhaus bg-[#1040C0] text-white px-4 py-2 border-2 border-[#121212] font-bold text-xs uppercase tracking-wider flex items-center space-x-1.5 hover:bg-[#0c3298]"
-                        >
-                            {copied ? (
-                                <>
-                                    <Check className="w-4 h-4" />
-                                    <span>COPIED!</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Copy className="w-4 h-4" />
-                                    <span>COPY</span>
-                                </>
-                            )}
-                        </button>
+                        <div className="flex items-stretch space-x-2">
+                            <button
+                                onClick={handleCopy}
+                                className="btn-bauhaus bg-[#1040C0] text-white px-4 py-2 border-2 border-[#121212] font-bold text-xs uppercase tracking-wider flex items-center space-x-1.5 hover:bg-[#0c3298]"
+                            >
+                                {copied ? (
+                                    <>
+                                        <Check className="w-4 h-4" />
+                                        <span>COPIED!</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy className="w-4 h-4" />
+                                        <span>COPY</span>
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => setIsQrModalOpen(true)}
+                                className="btn-bauhaus bg-[#121212] text-white px-4 py-2 border-2 border-[#121212] font-bold text-xs uppercase tracking-wider flex items-center space-x-1.5 hover:bg-[#333333]"
+                            >
+                                <QrCode className="w-4 h-4 text-[#F0C020]" />
+                                <span>QR CODE</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
+
+            <QrModal
+                isOpen={isQrModalOpen}
+                onClose={() => setIsQrModalOpen(false)}
+                shortUrl={shortUrl}
+                fullUrl={url}
+                isPermanent={isAuthenticated}
+            />
         </div>
     );
 };

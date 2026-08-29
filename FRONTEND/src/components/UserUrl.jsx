@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllUserUrls, deleteUserUrl } from '../api/user.api';
 import { useSelector } from 'react-redux';
-import { Copy, Check, ExternalLink, Link2, BarChart2, Trash2 } from 'lucide-react';
+import { Copy, Check, ExternalLink, Link2, BarChart2, Trash2, QrCode } from 'lucide-react';
+import QrModal from './QrModal';
 
 const UserUrl = () => {
     const { user } = useSelector((state) => state.auth);
@@ -18,6 +19,7 @@ const UserUrl = () => {
 
     const [copiedId, setCopiedId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
+    const [selectedQrUrl, setSelectedQrUrl] = useState(null);
 
     const handleCopy = (shortCode, id) => {
         const fullShortUrl = `${window.location.origin}/${shortCode}`;
@@ -28,12 +30,13 @@ const UserUrl = () => {
         }, 2000);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id, shortUrl) => {
         if (!window.confirm("Are you sure you want to delete this shortened URL?")) return;
         setDeletingId(id);
         try {
             await deleteUserUrl(id);
             queryClient.invalidateQueries({ queryKey: ['userUrls'] });
+            window.dispatchEvent(new CustomEvent('urlDeleted', { detail: { shortUrl } }));
         } catch (err) {
             alert(err.message || "Failed to delete URL");
         } finally {
@@ -145,7 +148,15 @@ const UserUrl = () => {
                                                 )}
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(url._id)}
+                                                onClick={() => setSelectedQrUrl(url)}
+                                                title="Generate QR Code"
+                                                className="btn-bauhaus px-2.5 py-1.5 bg-[#121212] text-[#F0C020] border-2 border-[#121212] font-black text-xs uppercase tracking-wider inline-flex items-center space-x-1 hover:bg-[#333333] transition"
+                                            >
+                                                <QrCode className="w-3.5 h-3.5" />
+                                                <span className="hidden sm:inline">QR</span>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(url._id, url.short_url)}
                                                 disabled={deletingId === url._id}
                                                 title="Delete URL"
                                                 className="btn-bauhaus p-1.5 bg-[#D02020] text-white border-2 border-[#121212] hover:bg-[#b01818] transition disabled:opacity-50"
@@ -160,6 +171,14 @@ const UserUrl = () => {
                     </tbody>
                 </table>
             </div>
+
+            <QrModal
+                isOpen={!!selectedQrUrl}
+                onClose={() => setSelectedQrUrl(null)}
+                shortUrl={selectedQrUrl?.short_url}
+                fullUrl={selectedQrUrl?.full_url}
+                isPermanent={true}
+            />
         </div>
     );
 };
